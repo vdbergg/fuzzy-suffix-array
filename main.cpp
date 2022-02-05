@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <fstream>
 #include <sstream>
 #include "header/Framework.h"
@@ -25,11 +26,11 @@ void processingQueriesOutsideServer() {
 
     if (config["is_full_query_instrumentation"] == "0") {
         for (int i = indexMin; i < indexMax; ++i) {
-            framework->processQuery(framework->queries[i], i);
+
         }
     } else {
         for (int i = indexMin; i < indexMax; ++i) {
-            framework->processFullQuery(framework->queries[i], i);
+
         }
     }
 }
@@ -91,7 +92,7 @@ void processingQueriesInServer() {
 int main(int argc, char** argv) {
     loadConfig();
 
-    framework = new Framework(config);
+    framework = new Framework();
 
     if (config["is_server"] == "0") {
         processingQueriesOutsideServer();
@@ -103,13 +104,14 @@ int main(int argc, char** argv) {
         framework->writeExperiments();
     #endif
 
+    delete experiment;
     delete framework;
     return 0;
 }
 
 void loadConfig() {
 
-    std::ifstream is_file("./path.cfg");
+    std::ifstream is_file("/home/berg/workspace/mestrado/fuzzy-suffix-array/path.cfg");
     std::string line;
 
     while( std::getline(is_file, line) )

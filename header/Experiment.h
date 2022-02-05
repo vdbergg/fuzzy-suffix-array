@@ -15,15 +15,16 @@
 
 #include <vector>
 #include <chrono>
+#include <unordered_map>
 
 using namespace std;
 
 class Experiment {
 public:
-    Experiment(unordered_map<string, string>, int);
+    Experiment(unordered_map<string, string> config, int);
     ~Experiment();
 
-    unordered_map<string, string> config;
+    unordered_map<string, string>  config;
     int editDistanceThreshold;
     long numberOfNodes;
     vector<unsigned long> numberOfActiveNodes;

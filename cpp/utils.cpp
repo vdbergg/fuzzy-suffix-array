@@ -6,8 +6,8 @@
 #include <sstream>
 #include <string>
 #include "../header/utils.h"
-#include "../header/Beva.h"
 
+#define CHAR_SIZE 128
 using namespace std;
 
 void utils::split(string value, char delimiter, vector<string>& tokens) {
