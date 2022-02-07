@@ -17,7 +17,7 @@ using namespace std;
 class Framework {
 public:
     SuffixTree* suffixTree;
-    SuffixArray* arraySuffix;
+    SuffixArray* suffixArray;
     vector<string> queries;
     vector<string> relevantQueries;
     int editDistanceThreshold;

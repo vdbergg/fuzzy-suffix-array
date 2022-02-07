@@ -28,6 +28,7 @@ Framework::Framework() {
 Framework::~Framework() {
     cout << "deleting framework" << endl;
     delete this->suffixTree;
+    delete this->suffixArray;
 }
 
 unsigned long getFileSize(string filename) {
@@ -143,8 +144,8 @@ void Framework::index(){
             relevantQueryFile += "jusbrasil/relevant_answers.txt";
             break;
         default:
-            datasetFile += "aol/aol" + sizeSufix + ".txt";
-            queryFile += "aol/q17_" + tau + datasetSuffix + ".txt";
+            datasetFile = "/home/berg/workspace/mestrado/fuzzy-suffix-array/test.txt";
+            queryFile = "/home/berg/workspace/mestrado/fuzzy-suffix-array/q.txt";
             break;
     }
 
@@ -158,18 +159,8 @@ void Framework::index(){
 //    this->suffixTree = new SuffixTree();
 //    this->suffixTree->build();
 //    this->suffixTree->visualize();
-    this->arraySuffix = new SuffixArray();
-    this->arraySuffix->build();
-
-    cout << "Searching test" << endl;
-    string prefix = "ab";
-    pair<int, int> result = this->arraySuffix->search(prefix);
-    cout << "beginRangeResult: " << result.first << " endRangeResult: " << result.second << endl;
-    for (int index = result.first; index < result.second; index++) {
-        string strResult = records[this->arraySuffix->suffixes[index]->recordId].c_str();
-        strResult = strResult.substr(this->arraySuffix->suffixes[index]->position);
-        cout << "Result: " << strResult << endl;
-    }
+    this->suffixArray = new SuffixArray();
+    this->suffixArray->build();
 
 //    this->beva = new Beva(this->trie, this->editDistanceThreshold);
 
@@ -183,4 +174,12 @@ void Framework::index(){
         experiment->compileNumberOfNodes();
     #endif
     cout << "<<<Index time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
+
+    string prefix = "volvo";
+    cout << "Searching in array..." << endl;
+    cout << "Searching prefix: " << prefix << endl;
+    vector<char*> results = this->suffixArray->search(prefix);
+    for (auto & result : results) {
+        cout << "Result: " << result << endl;
+    }
 }
