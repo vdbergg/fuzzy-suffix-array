@@ -15,7 +15,7 @@
 using namespace std;
 
 Experiment* experiment;
-vector<StaticString> records;
+vector<string> records;
 
 Framework::Framework() {
     this->editDistanceThreshold = stoi(config["edit_distance"]);
@@ -62,7 +62,7 @@ void Framework::readData(string& filename, vector<StaticString>& recs) {
     }
 }
 
-void Framework::readData(string& filename, vector<string>& recs) {
+void Framework::readData(string& filename, vector<string>& recs, bool insertEndOfWord) {
     cout << "reading dataset " << filename << endl;
 
     string str;
@@ -75,6 +75,7 @@ void Framework::readData(string& filename, vector<string>& recs) {
 //            }
 //            c = tolower(c);
 //        }
+        if (insertEndOfWord) str += "$";
         if (!str.empty()) recs.push_back(str);
     }
 }
@@ -149,7 +150,7 @@ void Framework::index(){
             break;
     }
 
-    readData(datasetFile, records);
+    readData(datasetFile, records, true);
     //    sort(this->records.begin(), this->records.end());
     readData(queryFile, this->queries);
     if (config["has_relevant_queries"] == "1") {
@@ -175,10 +176,10 @@ void Framework::index(){
     #endif
     cout << "<<<Index time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
 
-    string prefix = "volvo";
+    string prefix = "rica";
     cout << "Searching in array..." << endl;
     cout << "Searching prefix: " << prefix << endl;
-    vector<char*> results = this->suffixArray->search(prefix);
+    vector<string> results = this->suffixArray->search(prefix);
     for (auto & result : results) {
         cout << "Result: " << result << endl;
     }

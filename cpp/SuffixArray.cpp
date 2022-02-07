@@ -15,18 +15,13 @@ SuffixArray::~SuffixArray() {
 }
 
 bool lexicographicalOrder(pair<unsigned, unsigned short> itemA, pair<unsigned, unsigned short> itemB) {
-    string strA = records[itemA.first].c_str();
-    string strB = records[itemB.first].c_str();
-    return (strA.substr(itemA.second) < strB.substr(itemB.second));
+    return (records[itemA.first].substr(itemA.second) < records[itemB.first].substr(itemB.second));
 }
 
 void SuffixArray::build() {
     cout << "Adding pair to array..." << endl;
     for (unsigned recordId = 0; recordId < records.size(); recordId++) {
-        string record = records[recordId].c_str();
-        record += '\0';
-
-        for (unsigned short i = 0; i < record.size(); i++) {
+        for (unsigned short i = 0; i < records[recordId].size(); i++) {
             this->suffixes.emplace_back(recordId, i);
         }
     }
@@ -52,8 +47,7 @@ void SuffixArray::build() {
 int binarySearch(vector<pair<unsigned, unsigned short>> suffixArray, int begin, int end, const string& prefix) {
     if (end >= begin) {
         int pivot = begin + (end - begin) / 2;
-        string strPivot = records[suffixArray[pivot].first].c_str();
-        strPivot = strPivot.substr(suffixArray[pivot].second);
+        string strPivot = records[suffixArray[pivot].first].substr(suffixArray[pivot].second);
         if (strPivot.size() > prefix.size()) {
             strPivot = strPivot.substr(0, prefix.size());
         }
@@ -72,7 +66,7 @@ int binarySearch(vector<pair<unsigned, unsigned short>> suffixArray, int begin, 
     return -1;
 }
 
-vector<char*> SuffixArray::search(const string& prefix) {
+vector<string> SuffixArray::search(const string& prefix) {
     int beginRangeResult = -1;
     int endRangeResult = -1;
 
@@ -101,12 +95,12 @@ vector<char*> SuffixArray::search(const string& prefix) {
         }
     } while (pivot != -1);
 
-    vector<char*> results = this->fetching(make_pair(beginRangeResult, endRangeResult));
+    vector<string> results = this->fetching(make_pair(beginRangeResult, endRangeResult));
 
     return results;
 }
 
-vector<char*> SuffixArray::fetching(pair<int, int> rangeResults) {
+vector<string> SuffixArray::fetching(pair<int, int> rangeResults) {
     set<int> resultsRecordIds;
 
 //    cout << "beginRangeResult: " << rangeResults.first << " endRangeResult: " << rangeResults.second << endl;
@@ -117,10 +111,10 @@ vector<char*> SuffixArray::fetching(pair<int, int> rangeResults) {
         }
     }
 
-    vector<char*> results;
+    vector<string> results;
 
     for (auto itr = resultsRecordIds.rbegin(); itr != resultsRecordIds.rend(); itr++) {
-        results.push_back(records[*itr].c_str());
+        results.push_back(records[*itr]);
     }
 
     return results;

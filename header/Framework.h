@@ -26,7 +26,7 @@ public:
     Framework();
 
     void readData(string&, vector<StaticString>&);
-    void readData(string&, vector<string>&);
+    void readData(string&, vector<string>&, bool insertEndOfWord = false);
     void index();
 
     ~Framework();

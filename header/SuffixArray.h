@@ -14,8 +14,8 @@ public:
     ~SuffixArray();
 
     void build();
-    vector<char*> search(const string& prefix);
-    vector<char*> fetching(pair<int, int> rangeResults);
+    vector<string> search(const string& prefix);
+    vector<string> fetching(pair<int, int> rangeResults);
 
     vector<pair<unsigned, unsigned short>> suffixes;
 };

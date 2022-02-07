@@ -12,4 +12,4 @@ using namespace std;
 
 extern Experiment* experiment;
 extern unordered_map<string, string> config;
-extern vector<StaticString> records;
+extern vector<string> records;
