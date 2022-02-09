@@ -108,7 +108,6 @@ void Framework::index(){
     
     string datasetFile = config["dataset_basepath"];
     string queryFile = config["query_basepath"];
-    string relevantQueryFile = config["query_basepath"];
 
     int queriesSize = stoi(config["queries_size"]);
     string datasetSuffix = queriesSize == 10 ? "_10" : "";
@@ -142,7 +141,6 @@ void Framework::index(){
         case C::JUSBRASIL:
             datasetFile += "jusbrasil/jusbrasil" + sizeSufix + ".txt";
             queryFile += "jusbrasil/q.txt";
-            relevantQueryFile += "jusbrasil/relevant_answers.txt";
             break;
         default:
             datasetFile = "/home/berg/workspace/mestrado/fuzzy-suffix-array/test.txt";
@@ -153,22 +151,16 @@ void Framework::index(){
     readData(datasetFile, records, true);
     //    sort(this->records.begin(), this->records.end());
     readData(queryFile, this->queries);
-    if (config["has_relevant_queries"] == "1") {
-        readData(relevantQueryFile, this->relevantQueries);
-    }
 
     this->suffixArray = new SuffixArray(this->editDistanceThreshold);
     this->suffixArray->build();
 
-//    this->beva = new Beva(this->trie, this->editDistanceThreshold);
-
     auto done = chrono::high_resolution_clock::now();
 
     #ifdef BEVA_IS_COLLECT_MEMORY_H
-        this->experiment->getMemoryUsedInIndexing();
+        experiment->getMemoryUsedInIndexing();
     #else
         experiment->endIndexingTime();
-        experiment->compileNumberOfNodes();
     #endif
     cout << "<<<Index time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
 
@@ -179,18 +171,88 @@ void Framework::index(){
 //        cout << "Result: " << result << endl;
 //    }
 
-    string prefix = "volvo";
-    cout << "Searching in array to prefix: " << prefix << endl;
-
-    start = chrono::high_resolution_clock::now();
-    unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
-    for (const auto& result : resultsMap) {
-        cout << "result: " << result.second << endl;
-    }
+//    string prefix = "volvo";
+//    cout << "Searching in array to prefix: " << prefix << endl;
+//
+////    start = chrono::high_resolution_clock::now();
+//    unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
+//    for (const auto& result : resultsMap) {
+//        cout << "result: " << result.second << endl;
+//    }
 //    vector<string> results = this->suffixArray->exactSearch(prefix);
 //    for (const string& result : results) {
 //        cout << "result: " << result << endl;
 //    }
-    done = chrono::high_resolution_clock::now();
-    cout << "<<<Processing time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
+//    done = chrono::high_resolution_clock::now();
+//    cout << "<<<Processing time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
+}
+
+vector<string> Framework::processQuery(string &query, int queryId) {
+    vector<string> results;
+    vector<int> prefixQuerySizes = {5, 9, 13, 17};
+    string prefix = query;
+
+    for (int prefixQuerySize : prefixQuerySizes) {
+        prefix = query.substr(0, prefixQuerySize);
+
+        if (prefix.size() == prefixQuerySize) {
+            #ifdef BEVA_IS_COLLECT_TIME_H
+                experiment->initQueryProcessingTime();
+            #endif
+            unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
+
+            #ifdef BEVA_IS_COLLECT_TIME_H
+                experiment->endQueryProcessingTime(prefixQuerySize);
+                experiment->initQueryFetchingTime();
+                results = output(resultsMap);
+                experiment->endQueryFetchingTime(prefixQuerySize, results.size());
+            #endif
+        }
+    }
+
+    #ifdef BEVA_IS_COLLECT_MEMORY_H
+        experiment->getMemoryUsedInProcessing();
+    #else
+        experiment->compileQueryProcessingTimes(queryId);
+        experiment->saveQueryProcessingTime(prefix, queryId);
+    #endif
+
+    return results;
+}
+
+vector<string> Framework::processFullQuery(string &query) {
+    #ifdef BEVA_IS_COLLECT_TIME_H
+        experiment->initQueryProcessingTime();
+    #endif
+
+    unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(query);
+
+    #ifdef BEVA_IS_COLLECT_TIME_H
+        experiment->endSimpleQueryProcessingTime();
+        experiment->initQueryFetchingTime();
+    #endif
+
+    vector<string> results = this->output(resultsMap);
+
+    #ifdef BEVA_IS_COLLECT_TIME_H
+        experiment->endSimpleQueryFetchingTime(results.size());
+        experiment->compileSimpleQueryProcessingTimes(query);
+    #endif
+
+    #ifdef BEVA_IS_COLLECT_MEMORY_H
+        experiment->getMemoryUsedInProcessing();
+    #endif
+
+    return results;
+}
+
+vector<string> Framework::output(const unordered_map<int, string>& resultsMap) {
+    vector<string> results;
+    results.reserve(resultsMap.size());
+
+    for (const auto& result : resultsMap) {
+        results.emplace_back(records[result.first].c_str());
+    }
+
+    return results;
 }

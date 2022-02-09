@@ -17,7 +17,6 @@ class Framework {
 public:
     SuffixArray* suffixArray;
     vector<string> queries;
-    vector<string> relevantQueries;
     int editDistanceThreshold;
     int dataset;
 
@@ -26,8 +25,12 @@ public:
     void readData(string&, vector<StaticString>&);
     void readData(string&, vector<string>&, bool insertEndOfWord = false);
     void index();
+    vector<string> processQuery(string &query, int queryId);
+    vector<string> processFullQuery(string &query);
 
     ~Framework();
+
+    static vector<string> output(const unordered_map<int, string>& map);
 };
 
 

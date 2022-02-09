@@ -26,9 +26,6 @@ public:
 
     unordered_map<string, string>  config;
     int editDistanceThreshold;
-    long numberOfNodes;
-    vector<unsigned long> numberOfActiveNodes;
-    vector<unsigned long> numberOfIterationInChildren;
     vector<long> processingTimes;
     vector<long> fetchingTimes;
     vector<long> resultsSize;
@@ -38,10 +35,6 @@ public:
     vector<long> currentQueryProcessingTime;
     vector<long> currentQueryFetchingTime;
     vector<long> currentResultsSize;
-    vector<long> activeNodesSizes;
-    unsigned long simpleActiveNodesSizes;
-    vector<long> currentActiveNodesSize;
-    unordered_map<int, int> branchSize;
 
     #ifndef BEVA_IS_MAC_H
     chrono::time_point<std::chrono::system_clock> startIndexingTime;
@@ -66,21 +59,13 @@ public:
     void initIndexingTime();
     void endIndexingTime();
     void initQueryProcessingTime();
-    void endQueryProcessingTime(long, int);
-    void endSimpleQueryProcessingTime(long);
+    void endQueryProcessingTime(int);
+    void endSimpleQueryProcessingTime();
     void initQueryFetchingTime();
     void endQueryFetchingTime(int, unsigned long);
     void endSimpleQueryFetchingTime(unsigned long);
     void compileQueryProcessingTimes(int);
-    void compileSimpleQueryProcessingTimes(string&, bool relevantReturned = false);
-    void proportionOfBranchingSize(int size);
-    void incrementNumberOfNodes();
-    void incrementNumberOfActiveNodes(unsigned);
-    void compileNumberOfActiveNodes();
-    void incrementNumberOfIterationInChildren(unsigned);
-    void compileNumberOfIterationInChildren();
-    void compileNumberOfNodes();
-    void compileProportionOfBranchingSizeInBEVA2Level();
+    void compileSimpleQueryProcessingTimes(string&);
     void saveQueryProcessingTime(string&, int);
     void getMemoryUsedInIndexing();
     void getMemoryUsedInProcessing();

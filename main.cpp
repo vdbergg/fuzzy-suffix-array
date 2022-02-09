@@ -26,11 +26,11 @@ void processingQueriesOutsideServer() {
 
     if (config["is_full_query_instrumentation"] == "0") {
         for (int i = indexMin; i < indexMax; ++i) {
-
+            framework->processQuery(framework->queries[i], i);
         }
     } else {
         for (int i = indexMin; i < indexMax; ++i) {
-
+            framework->processFullQuery(framework->queries[i]);
         }
     }
 }

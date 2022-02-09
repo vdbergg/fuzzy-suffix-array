@@ -122,17 +122,15 @@ void Experiment::initQueryProcessingTime() {
     this->startQueryProcessingTime = chrono::high_resolution_clock::now();
 }
 
-void Experiment::endSimpleQueryProcessingTime(long activeNodesSize) {
+void Experiment::endSimpleQueryProcessingTime() {
     this->finishQueryProcessingTime = chrono::high_resolution_clock::now();
 
     this->simpleProcessingTimes = chrono::duration_cast<chrono::nanoseconds>(
             this->finishQueryProcessingTime - this->startQueryProcessingTime
     ).count();
-
-    this->simpleActiveNodesSizes = activeNodesSize;
 }
 
-void Experiment::endQueryProcessingTime(long activeNodesSize, int prefixQueryLength) {
+void Experiment::endQueryProcessingTime(int prefixQueryLength) {
     this->finishQueryProcessingTime = chrono::high_resolution_clock::now();
 
     long result = chrono::duration_cast<chrono::nanoseconds>(
@@ -140,25 +138,18 @@ void Experiment::endQueryProcessingTime(long activeNodesSize, int prefixQueryLen
     ).count();
 
     setVector(prefixQueryLength - 1, result, this->currentQueryProcessingTime);
-    setVector(prefixQueryLength - 1, activeNodesSize, this->currentActiveNodesSize);
     setVector(prefixQueryLength - 1, result, this->processingTimes);
-    setVector(prefixQueryLength - 1, activeNodesSize, this->activeNodesSizes);
 }
 
 void Experiment::saveQueryProcessingTime(string& query, int queryId) {
     string value = query + "\t" + to_string(queryId) + "\n";
 
-    long accum = 0;
-
     for (int j = 0; j < this->currentQueryProcessingTime.size(); j++) {
-        accum += this->currentQueryProcessingTime[j];
         value += to_string(j + 1) + "\t" + to_string(this->currentQueryProcessingTime[j]) + "\t" +
-          to_string(accum) + "\t" + to_string(this->currentQueryFetchingTime[j]) + "\t" +
-          to_string(this->currentResultsSize[j]) + "\t" +
-          to_string(this->currentActiveNodesSize[j]) + "\n";
+          to_string(this->currentQueryFetchingTime[j]) + "\t" +
+          to_string(this->currentResultsSize[j]) + "\n";
     }
     this->currentResultsSize.clear();
-    this->currentActiveNodesSize.clear();
     this->currentQueryProcessingTime.clear();
     this->currentQueryFetchingTime.clear();
 
@@ -167,94 +158,26 @@ void Experiment::saveQueryProcessingTime(string& query, int queryId) {
 
 void Experiment::compileQueryProcessingTimes(int queryId) {
     string value = to_string(queryId) + "\n";
-    value += "query_size\tquery_processing_time\taccumulated_query_processing_time\tfetching_time\tresults_size\t"
-    "active_nodes_size\n";
+    value += "query_size\tquery_processing_time\tfetching_time\tresults_size\n";
 
-    long accum = 0;
     for (int i = 0; i < this->processingTimes.size(); i++) {
         long processingTime = this->processingTimes[i] / (queryId + 1);
-        float activeNodesSize = this->activeNodesSizes[i] / (float) (queryId + 1);
         long fetchingTime = this->fetchingTimes[i] / (queryId + 1);
         float _resultsSize = this->resultsSize[i] / (float) (queryId + 1);
         stringstream streamResultSize;
         streamResultSize << std::fixed << std::setprecision(1) << _resultsSize;
-        stringstream stream;
-        stream << std::fixed << std::setprecision(1) << activeNodesSize;
-        accum += processingTime;
-        value += to_string(i + 1) + "\t" + to_string(processingTime) +
-                "\t" + to_string(accum) + "\t" + to_string(fetchingTime) +
-                "\t" + streamResultSize.str() + "\t" + stream.str() + "\n";
+        value += to_string(i + 1) + "\t" + to_string(processingTime) + "\t" + to_string(fetchingTime) +
+                "\t" + streamResultSize.str() + "\n";
     }
 
     writeFile("query_processing_time", value);
 }
 
-void Experiment::compileSimpleQueryProcessingTimes(string &query, bool relevantReturned) {
+void Experiment::compileSimpleQueryProcessingTimes(string &query) {
     string value = query + "\t" + to_string(this->simpleProcessingTimes) + "\t" +
-                   to_string(this->simpleFetchingTimes) + "\t" + to_string(this->simpleResultsSize) + "\t" +
-                   to_string(this->simpleActiveNodesSizes) + "\t" + to_string(int(relevantReturned)) + "\n";
+                   to_string(this->simpleFetchingTimes) + "\t" + to_string(this->simpleResultsSize) + "\n";
 
     writeFile("all_time_values", value, true);
-}
-
-void Experiment::proportionOfBranchingSize(int size) {
-    if (this->branchSize.find(size) == this->branchSize.end() ) {
-        this->branchSize[size] = 1;
-    } else {
-        this->branchSize[size]++;
-    }
-}
-                        
-void Experiment::compileProportionOfBranchingSizeInBEVA2Level() {
-    string value = "branch_size\tnumber_of_branches\n";
-
-    vector<pair<int, int>> elements(this->branchSize.begin(), this->branchSize.end());
-    sort(elements.begin(), elements.end());
-
-    for (const pair<int, int> &p : elements) {
-        value += to_string(p.first) + "\t" + to_string(p.second) + "\n";
-    }
-    elements.shrink_to_fit();
-    elements.clear();
-    this->branchSize.clear();
-
-    writeFile("proportion_branch_size", value);
-}
-
-void Experiment::incrementNumberOfNodes() {
-    this->numberOfNodes++;
-}
-
-void Experiment::incrementNumberOfActiveNodes(unsigned querySize) {
-    this->numberOfActiveNodes[querySize] += 1;
-}
-
-void Experiment::incrementNumberOfIterationInChildren(unsigned querySize) {
-    this->numberOfIterationInChildren[querySize] += 1;
-}
-
-void Experiment::compileNumberOfActiveNodes() {
-    string value = "number_of_active_nodes\n";
-    for (unsigned i = 0; i < this->numberOfActiveNodes.size(); i++) {
-        value += to_string(i + 1) + "\t" + to_string(this->numberOfActiveNodes[i]) + "\n";
-        this->numberOfActiveNodes[i] = 0;
-    }
-    writeFile("number_of_active_nodes", value);
-}
-
-void Experiment::compileNumberOfIterationInChildren() {
-    string value = "number_of_iteration_in_children\n";
-    for (unsigned i = 0; i < this->numberOfIterationInChildren.size(); i++) {
-        value += to_string(i + 1) + "\t" + to_string(this->numberOfIterationInChildren[i]) + "\n";
-        this->numberOfIterationInChildren[i] = 0;
-    }
-    writeFile("number_of_iteration_in_children", value);
-}
-
-void Experiment::compileNumberOfNodes() {
-    string value = "number_of_nodes\n";
-    value += to_string(this->numberOfNodes) + "\n";
-    writeFile("number_of_nodes", value);
 }
 
 void Experiment::getMemoryUsedInProcessing() {

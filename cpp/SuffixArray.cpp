@@ -16,7 +16,7 @@ SuffixArray::~SuffixArray() {
 
 }
 
-bool lexicographicalOrder(pair<unsigned, unsigned short> itemA, pair<unsigned, unsigned short> itemB) {
+bool lexicographicalOrder(pair<unsigned, unsigned short>& itemA, pair<unsigned, unsigned short>& itemB) {
     return (records[itemA.first].substr(itemA.second) < records[itemB.first].substr(itemB.second));
 }
 
@@ -46,7 +46,7 @@ void SuffixArray::build() {
 //    }
 }
 
-int binarySearch(vector<pair<unsigned, unsigned short>> suffixArray, int begin, int end, const string& prefix) {
+int binarySearch(vector<pair<unsigned, unsigned short>>& suffixArray, int begin, int end, const string& prefix) {
     if (end >= begin) {
         int pivot = begin + (end - begin) / 2;
         string strPivot = records[suffixArray[pivot].first].substr(suffixArray[pivot].second);
@@ -162,40 +162,43 @@ unordered_map<int, string> SuffixArray::approximateSearch(const string &prefix) 
     unordered_map<int, string> resultsMap;
     int gramSize = ceil(float(prefix.size()) / float(this->editDistanceThreshold + this->s));
 
-    cout << "Generating ngram to prefix..." << endl;
+//    cout << "Generating ngram to prefix..." << endl;
     vector<string> prefixNGrams = generateNGram(gramSize, prefix);
 
     int ngramPosition = 0;
     for (const string& ngram : prefixNGrams) {
-        cout << "Exact searching to ngram..." << endl;
+//        cout << "Exact searching to ngram..." << endl;
         pair<int, int> rangeResult = this->search(ngram);
 
-        cout << "Generating candidates to ngram..." << endl;
-        unordered_map<int, int> candidatesMapIds;
-        for (int i = rangeResult.first; i <= rangeResult.second; i++) {
-            pair<int, int> item = this->suffixes[i];
+        if (rangeResult.first != -1 && rangeResult.second != -1) {
+//            cout << "Generating candidates to ngram..." << endl;
+            unordered_map<int, int> candidatesMapIds;
 
-            if (candidatesMapIds.find(item.first) == candidatesMapIds.end()) {
-                if (item.second >= ngramPosition - this->editDistanceThreshold &&
-                    item.second <= ngramPosition + this->editDistanceThreshold) {
-                    candidatesMapIds[item.first] = 1;
+            for (int i = rangeResult.first; i <= rangeResult.second; i++) {
+                pair<int, int> item = this->suffixes[i];
+
+                if (candidatesMapIds.find(item.first) == candidatesMapIds.end()) {
+                    if (item.second >= ngramPosition - this->editDistanceThreshold &&
+                        item.second <= ngramPosition + this->editDistanceThreshold) {
+                        candidatesMapIds[item.first] = 1;
+                    }
                 }
             }
-        }
 
 //        cout << "ngram: " << ngram << endl;
-        cout << "Calculating edit distance between candidates and prefix..." << endl;
-        for (auto item : candidatesMapIds) {
-            string candidate = records[item.first];
+//            cout << "Calculating edit distance between candidates and prefix..." << endl;
+            for (auto item : candidatesMapIds) {
+                string candidate = records[item.first];
 //            cout << "Candidate: " << candidate << endl;
-            if (candidate.size() > prefix.size()) {
-                candidate = candidate.substr(0, prefix.size());
-            }
+                if (candidate.size() > prefix.size()) {
+                    candidate = candidate.substr(0, prefix.size());
+                }
 
-            if (resultsMap.find(item.first) == resultsMap.end()) {
-                if (candidate.size() > prefix.size() - this->editDistanceThreshold &&
-                    calculateEdiDistance(prefix, candidate) <= this->editDistanceThreshold) {
-                    resultsMap[item.first] = records[item.first];
+                if (resultsMap.find(item.first) == resultsMap.end()) {
+                    if (candidate.size() > prefix.size() - this->editDistanceThreshold &&
+                        calculateEdiDistance(prefix, candidate) <= this->editDistanceThreshold) {
+                        resultsMap[item.first] = records[item.first];
+                    }
                 }
             }
         }
