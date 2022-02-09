@@ -3,6 +3,7 @@
 //
 
 #include <algorithm>
+#include <cmath>
 #include <set>
 #include "../header/SuffixArray.h"
 
@@ -66,7 +67,13 @@ int binarySearch(vector<pair<unsigned, unsigned short>> suffixArray, int begin, 
     return -1;
 }
 
-vector<string> SuffixArray::search(const string& prefix) {
+vector<string> SuffixArray::exactSearch(const string& prefix) {
+  pair<int, int> rangeResults = this->search(prefix);
+  vector<string> results = this->fetching(rangeResults.first, rangeResults.second);
+  return results;
+}
+
+pair<int, int> SuffixArray::search(const string& prefix) {
     int beginRangeResult = -1;
     int endRangeResult = -1;
 
@@ -84,38 +91,116 @@ vector<string> SuffixArray::search(const string& prefix) {
     } while (pivot != -1);
 
     // Getting the last prefix match
-    begin = beginRangeResult + 1;
-    end = this->suffixes.size() - 1;
+    if (beginRangeResult != -1) {
+        begin = beginRangeResult + 1;
+        end = this->suffixes.size() - 1;
 
-    do {
-        pivot = binarySearch(this->suffixes, begin, end, prefix);
-        if (pivot != -1) {
-            endRangeResult = pivot;
-            begin = pivot + 1;
-        }
-    } while (pivot != -1);
+        do {
+            pivot = binarySearch(this->suffixes, begin, end, prefix);
+            if (pivot != -1) {
+                endRangeResult = pivot;
+                begin = pivot + 1;
+            }
+        } while (pivot != -1);
+    }
 
-    vector<string> results = this->fetching(make_pair(beginRangeResult, endRangeResult));
-
-    return results;
+    return make_pair(beginRangeResult, endRangeResult);
 }
 
-vector<string> SuffixArray::fetching(pair<int, int> rangeResults) {
+vector<string> SuffixArray::fetching(int beginRangeResult, int endRangeResult) {
     set<int> resultsRecordIds;
-
-//    cout << "beginRangeResult: " << rangeResults.first << " endRangeResult: " << rangeResults.second << endl;
-    if (rangeResults.first != -1 && rangeResults.second != -1) {
-        for (int index = rangeResults.first; index <= rangeResults.second; index++) {
-            resultsRecordIds.insert(this->suffixes[index].first);
-//            cout << "Index: " << index << " Result: " << records[this->suffixes[index].first].c_str() << " recordId: " << this->suffixes[index].first << " position: " << this->suffixes[index].second << endl;
-        }
+//    cout << "beginRangeResult: " << beginRangeResult << " endRangeResult: " << endRangeResult << endl;
+    for (int i = beginRangeResult; i <= endRangeResult; i++) {
+        resultsRecordIds.insert(this->suffixes[i].first);
+//        cout << "Index: " << i << " Result: " << records[this->suffixes[i].first].c_str() << " recordId: " << this->suffixes[i].first << " position: " << this->suffixes[i].second << endl;
     }
 
     vector<string> results;
-
     for (auto itr = resultsRecordIds.rbegin(); itr != resultsRecordIds.rend(); itr++) {
         results.push_back(records[*itr]);
     }
 
     return results;
+}
+
+vector<string> generateNGram(int n, const string &prefix) {
+    vector<string> ngrams;
+    int i = 0;
+
+    while (i < prefix.size()) {
+        ngrams.push_back(prefix.substr(i, n));
+        i += n;
+    }
+
+    return ngrams;
+}
+
+int calculateEdiDistance(const string& a, const string& b) {
+    int m[a.size() + 1][b.size() + 1];
+
+    for (int i = 0; i <= a.size(); i++) {
+        for (int j = 0; j <= b.size(); j++) {
+            if (i == 0) {
+                m[i][j] = j;
+            } else if (j == 0) {
+                m[i][j] = i;
+            } else if (a[i - 1] == b[j - 1]) {
+                m[i][j] = m[i - 1][j - 1];
+            } else {
+                m[i][j] = 1 + utils::min(m[i][j - 1], // Insert
+                                m[i - 1][j], // Remove
+                                m[i - 1][j - 1]); // Replace
+            }
+        }
+    }
+
+    return m[a.size()][b.size()];
+}
+
+unordered_map<int, string> SuffixArray::approximateSearch(const string &prefix) {
+    unordered_map<int, string> resultsMap;
+
+    int k = 2;
+    int s = 1;
+    int nGram = ceil(float(prefix.size()) / float(k + s));
+
+    vector<string> prefixNGrams = generateNGram(nGram, prefix);
+
+    int ngramPosition = 0;
+    for (const string& ngram : prefixNGrams) {
+        pair<int, int> rangeResult = this->search(ngram);
+
+        unordered_map<int, int> candidatesMapIds;
+        for (int i = rangeResult.first; i <= rangeResult.second; i++) {
+            pair<int, int> item = this->suffixes[i];
+
+            if (candidatesMapIds.find(item.first) == candidatesMapIds.end()) {
+                if (item.second >= ngramPosition - k && item.second <= ngramPosition + k) {
+                    candidatesMapIds[item.first] = 1;
+                }
+            }
+        }
+
+//        cout << "ngram: " << ngram << endl;
+        for (auto item : candidatesMapIds) {
+            string candidate = records[item.first];
+//            cout << "Candidate: " << candidate << endl;
+            if (candidate.size() > prefix.size()) {
+                candidate = candidate.substr(0, prefix.size());
+            }
+
+//            cout << "Candidate cortado: " << candidate << endl;
+//            cout << "Prefix: " << prefix << endl;
+
+            if (resultsMap.find(item.first) == resultsMap.end()) {
+                if (candidate.size() > prefix.size() - k && calculateEdiDistance(prefix, candidate) <= k) {
+                    resultsMap[item.first] = records[item.first];
+                }
+            }
+        }
+
+        ngramPosition += ngram.size();
+    }
+
+  return resultsMap;
 }

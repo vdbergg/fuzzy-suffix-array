@@ -11,6 +11,7 @@
 #include "../header/C.h"
 #include "../header/Framework.h"
 #include "../header/Directives.h"
+#include "../header/utils.h"
 
 using namespace std;
 
@@ -171,16 +172,21 @@ void Framework::index(){
         this->experiment->getMemoryUsedInIndexing();
     #else
         experiment->endIndexingTime();
-        experiment->compileProportionOfBranchingSizeInBEVA2Level();
         experiment->compileNumberOfNodes();
     #endif
     cout << "<<<Index time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
 
-    string prefix = "rica";
-    cout << "Searching in array..." << endl;
-    cout << "Searching prefix: " << prefix << endl;
-    vector<string> results = this->suffixArray->search(prefix);
-    for (auto & result : results) {
-        cout << "Result: " << result << endl;
+//    string prefix = "rica";
+//    cout << "Searching in array to prefix: " << prefix << endl;
+//    vector<string> results = this->suffixArray->exactSearch(prefix);
+//    for (auto & result : results) {
+//        cout << "Result: " << result << endl;
+//    }
+
+    string prefix = "bafana";
+    cout << "Searching in array to prefix: " << prefix << endl;
+    unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
+    for (const auto& result : resultsMap) {
+        cout << "result: " << result.second << endl;
     }
 }

@@ -7,6 +7,7 @@
 
 #include "StaticString.h"
 #include "GlobalVariables.h"
+#include "utils.h"
 
 class SuffixArray {
 public:
@@ -14,8 +15,10 @@ public:
     ~SuffixArray();
 
     void build();
-    vector<string> search(const string& prefix);
-    vector<string> fetching(pair<int, int> rangeResults);
+    unordered_map<int, string> approximateSearch(const string& prefix);
+    vector<string> exactSearch(const string& prefix);
+    pair<int, int> search(const string& prefix);
+    vector<string> fetching(int beginRangeResult, int endRangeResult);
 
     vector<pair<unsigned, unsigned short>> suffixes;
 };
