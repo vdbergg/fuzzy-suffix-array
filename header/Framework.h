@@ -9,14 +9,12 @@
 #include <string>
 #include "Experiment.h"
 #include "GlobalVariables.h"
-#include "SuffixTree.h"
 #include "SuffixArray.h"
 
 using namespace std;
 
 class Framework {
 public:
-    SuffixTree* suffixTree;
     SuffixArray* suffixArray;
     vector<string> queries;
     vector<string> relevantQueries;

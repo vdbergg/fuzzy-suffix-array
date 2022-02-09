@@ -11,7 +11,7 @@
 
 class SuffixArray {
 public:
-    SuffixArray();
+    SuffixArray(int editDistanceThreshold);
     ~SuffixArray();
 
     void build();
@@ -21,6 +21,8 @@ public:
     vector<string> fetching(int beginRangeResult, int endRangeResult);
 
     vector<pair<unsigned, unsigned short>> suffixes;
+    int editDistanceThreshold;
+    int s;
 };
 
 

@@ -7,8 +7,9 @@
 #include <set>
 #include "../header/SuffixArray.h"
 
-SuffixArray::SuffixArray() {
-
+SuffixArray::SuffixArray(int editDistanceThreshold) {
+    this->editDistanceThreshold = editDistanceThreshold;
+    this->s = 1;
 }
 
 SuffixArray::~SuffixArray() {
@@ -159,10 +160,7 @@ int calculateEdiDistance(const string& a, const string& b) {
 
 unordered_map<int, string> SuffixArray::approximateSearch(const string &prefix) {
     unordered_map<int, string> resultsMap;
-
-    int k = 2;
-    int s = 1;
-    int nGram = ceil(float(prefix.size()) / float(k + s));
+    int nGram = ceil(float(prefix.size()) / float(this->editDistanceThreshold + this->s));
 
     vector<string> prefixNGrams = generateNGram(nGram, prefix);
 
@@ -175,7 +173,8 @@ unordered_map<int, string> SuffixArray::approximateSearch(const string &prefix) 
             pair<int, int> item = this->suffixes[i];
 
             if (candidatesMapIds.find(item.first) == candidatesMapIds.end()) {
-                if (item.second >= ngramPosition - k && item.second <= ngramPosition + k) {
+                if (item.second >= ngramPosition - this->editDistanceThreshold &&
+                    item.second <= ngramPosition + this->editDistanceThreshold) {
                     candidatesMapIds[item.first] = 1;
                 }
             }
@@ -189,11 +188,8 @@ unordered_map<int, string> SuffixArray::approximateSearch(const string &prefix) 
                 candidate = candidate.substr(0, prefix.size());
             }
 
-//            cout << "Candidate cortado: " << candidate << endl;
-//            cout << "Prefix: " << prefix << endl;
-
             if (resultsMap.find(item.first) == resultsMap.end()) {
-                if (candidate.size() > prefix.size() - k && calculateEdiDistance(prefix, candidate) <= k) {
+                if (candidate.size() > prefix.size() - this->editDistanceThreshold && calculateEdiDistance(prefix, candidate) <= this->editDistanceThreshold) {
                     resultsMap[item.first] = records[item.first];
                 }
             }

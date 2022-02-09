@@ -28,7 +28,6 @@ Framework::Framework() {
 
 Framework::~Framework() {
     cout << "deleting framework" << endl;
-    delete this->suffixTree;
     delete this->suffixArray;
 }
 
@@ -158,10 +157,7 @@ void Framework::index(){
         readData(relevantQueryFile, this->relevantQueries);
     }
 
-//    this->suffixTree = new SuffixTree();
-//    this->suffixTree->build();
-//    this->suffixTree->visualize();
-    this->suffixArray = new SuffixArray();
+    this->suffixArray = new SuffixArray(this->editDistanceThreshold);
     this->suffixArray->build();
 
 //    this->beva = new Beva(this->trie, this->editDistanceThreshold);
@@ -183,7 +179,7 @@ void Framework::index(){
 //        cout << "Result: " << result << endl;
 //    }
 
-    string prefix = "bafana";
+    string prefix = "bala";
     cout << "Searching in array to prefix: " << prefix << endl;
     unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
     for (const auto& result : resultsMap) {
