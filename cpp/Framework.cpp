@@ -179,10 +179,18 @@ void Framework::index(){
 //        cout << "Result: " << result << endl;
 //    }
 
-    string prefix = "bala";
+    string prefix = "volvo";
     cout << "Searching in array to prefix: " << prefix << endl;
+
+    start = chrono::high_resolution_clock::now();
     unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
     for (const auto& result : resultsMap) {
         cout << "result: " << result.second << endl;
     }
+//    vector<string> results = this->suffixArray->exactSearch(prefix);
+//    for (const string& result : results) {
+//        cout << "result: " << result << endl;
+//    }
+    done = chrono::high_resolution_clock::now();
+    cout << "<<<Processing time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
 }
