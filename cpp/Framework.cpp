@@ -164,7 +164,7 @@ void Framework::index(){
     #endif
     cout << "<<<Index time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
 
-//    string prefix = "rica";
+//    string prefix = "ba";
 //    cout << "Searching in array to prefix: " << prefix << endl;
 //    vector<string> results = this->suffixArray->exactSearch(prefix);
 //    for (auto & result : results) {
@@ -174,17 +174,18 @@ void Framework::index(){
 //    string prefix = "volvo";
 //    cout << "Searching in array to prefix: " << prefix << endl;
 //
-////    start = chrono::high_resolution_clock::now();
-//    unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
+//    start = chrono::high_resolution_clock::now();
+//    unordered_map<int, int> resultsMap;
+//    this->suffixArray->approximateSearch(prefix, resultsMap);
 //    for (const auto& result : resultsMap) {
-//        cout << "result: " << result.second << endl;
+//        cout << "result: " << records[result.first] << endl;
 //    }
 //    vector<string> results = this->suffixArray->exactSearch(prefix);
 //    for (const string& result : results) {
 //        cout << "result: " << result << endl;
 //    }
-//    done = chrono::high_resolution_clock::now();
-//    cout << "<<<Processing time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
+    done = chrono::high_resolution_clock::now();
+    cout << "<<<Processing time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
 }
 
 vector<string> Framework::processQuery(string &query, int queryId) {
@@ -199,7 +200,8 @@ vector<string> Framework::processQuery(string &query, int queryId) {
             #ifdef BEVA_IS_COLLECT_TIME_H
                 experiment->initQueryProcessingTime();
             #endif
-            unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(prefix);
+            unordered_map<int, int> resultsMap;
+            this->suffixArray->approximateSearch(prefix, resultsMap);
 
             #ifdef BEVA_IS_COLLECT_TIME_H
                 experiment->endQueryProcessingTime(prefixQuerySize);
@@ -225,7 +227,8 @@ vector<string> Framework::processFullQuery(string &query) {
         experiment->initQueryProcessingTime();
     #endif
 
-    unordered_map<int, string> resultsMap = this->suffixArray->approximateSearch(query);
+    unordered_map<int, int> resultsMap;
+    this->suffixArray->approximateSearch(query, resultsMap);
 
     #ifdef BEVA_IS_COLLECT_TIME_H
         experiment->endSimpleQueryProcessingTime();
@@ -246,7 +249,7 @@ vector<string> Framework::processFullQuery(string &query) {
     return results;
 }
 
-vector<string> Framework::output(const unordered_map<int, string>& resultsMap) {
+vector<string> Framework::output(const unordered_map<int, int>& resultsMap) {
     vector<string> results;
     results.reserve(resultsMap.size());
 

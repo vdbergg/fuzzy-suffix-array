@@ -46,66 +46,70 @@ void SuffixArray::build() {
 //    }
 }
 
-int binarySearch(vector<pair<unsigned, unsigned short>>& suffixArray, int begin, int end, const string& prefix) {
-    if (end >= begin) {
-        int pivot = begin + (end - begin) / 2;
-        string strPivot = records[suffixArray[pivot].first].substr(suffixArray[pivot].second);
-        if (strPivot.size() > prefix.size()) {
-            strPivot = strPivot.substr(0, prefix.size());
-        }
+int binarySearchRight(vector<pair<unsigned, unsigned short>>& suffixArray, int begin, int end, const string& prefix) {
+    int pivot;
+    int result;
 
-        if (strPivot == prefix) {
-            return pivot;
+    while (begin <= end) {
+        pivot = (begin + end) / 2;
+        result = prefix.compare(0,
+                                prefix.size(),
+                                records[suffixArray[pivot].first].c_str() + suffixArray[pivot].second,
+                                0,
+                                prefix.size());
+        if (result > 0) {
+            begin = pivot + 1;
+        } else if (result <= 0) {
+            end = pivot - 1;
         }
-
-        if (strPivot > prefix) {
-            return binarySearch(suffixArray, begin, pivot - 1, prefix);
+    }
+    if (begin < suffixArray.size()) {
+        if (prefix.compare(0, prefix.size(), records[suffixArray[begin].first].c_str() + suffixArray[begin].second, 0, prefix.size()) == 0) {
+            return begin;
         }
+    }
+    return -1;
+}
 
-        return binarySearch(suffixArray, pivot + 1, end, prefix);
+int binarySearchLeft(vector<pair<unsigned, unsigned short>>& suffixArray, int begin, int end, const string& prefix) {
+    int pivot;
+    int result;
+    while (begin <= end) {
+        pivot = (begin+end) / 2;
+        result = prefix.compare(0, prefix.size(), records[suffixArray[pivot].first].c_str() + suffixArray[pivot].second,0, prefix.size());
+
+        if (result >= 0) {
+            begin= pivot + 1;
+        }
+        else if (result < 0) {
+            end = pivot - 1;
+        }
+    }
+    if (end > 0) {
+        if (prefix.compare(0, prefix.size(), records[suffixArray[end].first].c_str() + suffixArray[end].second,0, prefix.size()) == 0) {
+            return end;
+        }
+    }
+    return -1;
+}
+
+pair<int, int> SuffixArray::search(const string& prefix) {
+    int begin = 0;
+    int end = this->suffixes.size() - 1;
+
+    int beginRangeResult = binarySearchRight(this->suffixes, begin, end, prefix);
+    int endRangeResult = -1;
+    if (beginRangeResult != -1) {
+        endRangeResult = binarySearchLeft(this->suffixes, begin, end, prefix);
     }
 
-    return -1;
+    return make_pair(beginRangeResult, endRangeResult);
 }
 
 vector<string> SuffixArray::exactSearch(const string& prefix) {
   pair<int, int> rangeResults = this->search(prefix);
   vector<string> results = this->fetching(rangeResults.first, rangeResults.second);
   return results;
-}
-
-pair<int, int> SuffixArray::search(const string& prefix) {
-    int beginRangeResult = -1;
-    int endRangeResult = -1;
-
-    // Getting the first prefix match
-    int begin = 0;
-    int end = this->suffixes.size() - 1;
-    int pivot = -1;
-
-    do {
-        pivot = binarySearch(this->suffixes, begin, end, prefix);
-        if (pivot != -1) {
-            beginRangeResult = endRangeResult = pivot;
-            end = pivot - 1;
-        }
-    } while (pivot != -1);
-
-    // Getting the last prefix match
-    if (beginRangeResult != -1) {
-        begin = beginRangeResult + 1;
-        end = this->suffixes.size() - 1;
-
-        do {
-            pivot = binarySearch(this->suffixes, begin, end, prefix);
-            if (pivot != -1) {
-                endRangeResult = pivot;
-                begin = pivot + 1;
-            }
-        } while (pivot != -1);
-    }
-
-    return make_pair(beginRangeResult, endRangeResult);
 }
 
 vector<string> SuffixArray::fetching(int beginRangeResult, int endRangeResult) {
@@ -124,23 +128,20 @@ vector<string> SuffixArray::fetching(int beginRangeResult, int endRangeResult) {
     return results;
 }
 
-vector<string> generateNGram(int n, const string &prefix) {
-    vector<string> ngrams;
+void generateNGram(int n, const string &prefix, vector<string>& ngrams) {
     int i = 0;
 
     while (i < prefix.size()) {
         ngrams.push_back(prefix.substr(i, n));
         i += n;
     }
-
-    return ngrams;
 }
 
-int calculateEdiDistance(const string& a, const string& b) {
-    int m[a.size() + 1][b.size() + 1];
+int calculateEdiDistance(const string& a, const string& b, int candidateSize) {
+    int m[a.size() + 1][candidateSize + 1];
 
     for (int i = 0; i <= a.size(); i++) {
-        for (int j = 0; j <= b.size(); j++) {
+        for (int j = 0; j <= candidateSize; j++) {
             if (i == 0) {
                 m[i][j] = j;
             } else if (j == 0) {
@@ -155,56 +156,57 @@ int calculateEdiDistance(const string& a, const string& b) {
         }
     }
 
-    return m[a.size()][b.size()];
+    return m[a.size()][candidateSize];
 }
 
-unordered_map<int, string> SuffixArray::approximateSearch(const string &prefix) {
-    unordered_map<int, string> resultsMap;
+void SuffixArray::approximateSearch(const string &prefix, unordered_map<int, int>& resultsMap) {
     int gramSize = ceil(float(prefix.size()) / float(this->editDistanceThreshold + this->s));
 
 //    cout << "Generating ngram to prefix..." << endl;
-    vector<string> prefixNGrams = generateNGram(gramSize, prefix);
+//    auto start = chrono::high_resolution_clock::now();
+    vector<string> prefixNGrams;
+    generateNGram(gramSize, prefix, prefixNGrams);
+//    auto done = chrono::high_resolution_clock::now();
+//    cout << "<<<generateNGram(gramSize, prefix, prefixNGrams): "<< chrono::duration_cast<chrono::nanoseconds>(done - start).count() << " ns>>>\n";
 
     int ngramPosition = 0;
     for (const string& ngram : prefixNGrams) {
 //        cout << "Exact searching to ngram..." << endl;
+//        start = chrono::high_resolution_clock::now();
         pair<int, int> rangeResult = this->search(ngram);
+//        done = chrono::high_resolution_clock::now();
+//        cout << "<<<this->search(ngram): "<< chrono::duration_cast<chrono::nanoseconds>(done - start).count() << " ns>>>\n";
 
         if (rangeResult.first != -1 && rangeResult.second != -1) {
 //            cout << "Generating candidates to ngram..." << endl;
-            unordered_map<int, int> candidatesMapIds;
+//            start = chrono::high_resolution_clock::now();
 
             for (int i = rangeResult.first; i <= rangeResult.second; i++) {
                 pair<int, int> item = this->suffixes[i];
-
-                if (candidatesMapIds.find(item.first) == candidatesMapIds.end()) {
-                    if (item.second >= ngramPosition - this->editDistanceThreshold &&
-                        item.second <= ngramPosition + this->editDistanceThreshold) {
-                        candidatesMapIds[item.first] = 1;
-                    }
-                }
-            }
-
-//        cout << "ngram: " << ngram << endl;
-//            cout << "Calculating edit distance between candidates and prefix..." << endl;
-            for (auto item : candidatesMapIds) {
-                string candidate = records[item.first];
-//            cout << "Candidate: " << candidate << endl;
-                if (candidate.size() > prefix.size()) {
-                    candidate = candidate.substr(0, prefix.size());
-                }
+                int candidateSize;
 
                 if (resultsMap.find(item.first) == resultsMap.end()) {
-                    if (candidate.size() > prefix.size() - this->editDistanceThreshold &&
-                        calculateEdiDistance(prefix, candidate) <= this->editDistanceThreshold) {
-                        resultsMap[item.first] = records[item.first];
+                    if (item.second >= ngramPosition - this->editDistanceThreshold &&
+                        item.second <= ngramPosition + this->editDistanceThreshold) {
+
+                        candidateSize = records[item.first].size();
+                        if (candidateSize > prefix.size()) {
+                            candidateSize = prefix.size();
+                        }
+
+                        if (candidateSize > prefix.size() - this->editDistanceThreshold &&
+                            calculateEdiDistance(prefix, records[item.first], candidateSize) <= this->editDistanceThreshold) {
+                            resultsMap[item.first] = 1;
+                        }
                     }
                 }
             }
+//            done = chrono::high_resolution_clock::now();
+//            cout << "<<<candidates time: "<< chrono::duration_cast<chrono::nanoseconds>(done - start).count() << " ns>>>\n";
         }
+
+//        cout << "\n" << endl;
 
         ngramPosition += ngram.size();
     }
-
-  return resultsMap;
 }

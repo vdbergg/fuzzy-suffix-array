@@ -30,7 +30,7 @@ public:
 
     ~Framework();
 
-    static vector<string> output(const unordered_map<int, string>& map);
+    static vector<string> output(const unordered_map<int, int>& map);
 };
 
 

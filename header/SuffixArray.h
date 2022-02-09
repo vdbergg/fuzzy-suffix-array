@@ -15,7 +15,7 @@ public:
     ~SuffixArray();
 
     void build();
-    unordered_map<int, string> approximateSearch(const string& prefix);
+    void approximateSearch(const string& prefix, unordered_map<int, int>& resultsMap);
     vector<string> exactSearch(const string& prefix);
     pair<int, int> search(const string& prefix);
     vector<string> fetching(int beginRangeResult, int endRangeResult);
