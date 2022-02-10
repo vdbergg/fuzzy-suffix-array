@@ -5,7 +5,7 @@
 #include <sstream>
 #include "header/Framework.h"
 #include "header/Directives.h"
-//#include "header/crow_all.h"
+#include "header/crow_all.h"
 
 using namespace std;
 
@@ -36,56 +36,56 @@ void processingQueriesOutsideServer() {
 }
 
 void processingQueriesInServer() {
-//    crow::SimpleApp app;
-//
-//    CROW_ROUTE(app, "/")
-//            .name("hello")
-//                    ([]{
-//                        return "Hello World!";
-//                    });
-//
-//    CROW_ROUTE(app, "/about")
-//            ([](){
-//                return "This is a server";
-//            });
-//
-//    CROW_ROUTE(app, "/autocomplete")
-//            ([](const crow::request& req) {
-//                std::ostringstream os;
-//                vector<char *> results;
-//
-//                os << "Params: " << req.url_params << "\n\n";
-//
-////                if (req.url_params.get("load_config") != nullptr) {
-////                    string load_config = boost::lexical_cast<string>(req.url_params.get("load_config"));
-////                    os << "The value of 'load_config' is " << load_config << '\n';
-////                    if (load_config == "true") {
-////                        loadConfig();
-////                    }
-////                }
-//
-//                if (req.url_params.get("query") != nullptr) {
-//                    string query = boost::lexical_cast<string>(req.url_params.get("query"));
-//                    os << "The value of 'query' is " <<  query << '\n';
-//                    results = framework->processFullQuery(query);
+    crow::SimpleApp app;
+
+    CROW_ROUTE(app, "/")
+            .name("hello")
+                    ([]{
+                        return "Hello World!";
+                    });
+
+    CROW_ROUTE(app, "/about")
+            ([](){
+                return "This is a server";
+            });
+
+    CROW_ROUTE(app, "/autocomplete")
+            ([](const crow::request& req) {
+                std::ostringstream os;
+                vector<char *> results;
+
+                os << "Params: " << req.url_params << "\n\n";
+
+//                if (req.url_params.get("load_config") != nullptr) {
+//                    string load_config = boost::lexical_cast<string>(req.url_params.get("load_config"));
+//                    os << "The value of 'load_config' is " << load_config << '\n';
+//                    if (load_config == "true") {
+//                        loadConfig();
+//                    }
 //                }
-//
-//                crow::json::wvalue response;
-//                response["results"] = results;
-//                cout << "<<<< Response length >>>> " + to_string(results.size()) << endl;
-//
-//                return response;
-////                return crow::response{os.str()};
-//            });
-//
-//    // ignore all log
-//    crow::logger::setLogLevel(crow::LogLevel::Debug);
-//    //crow::logger::setHandler(std::make_shared<ExampleLogHandler>());
-//
-//    app.port(18080)
-////      .concurrency(10)
-//        .multithreaded()
-//        .run();
+
+                if (req.url_params.get("query") != nullptr) {
+                    string query = boost::lexical_cast<string>(req.url_params.get("query"));
+                    os << "The value of 'query' is " <<  query << '\n';
+                    results = framework->processFullQuery(query);
+                }
+
+                crow::json::wvalue response;
+                response["results"] = results;
+                cout << "<<<< Response length >>>> " + to_string(results.size()) << endl;
+
+                return response;
+//                return crow::response{os.str()};
+            });
+
+    // ignore all log
+    crow::logger::setLogLevel(crow::LogLevel::Debug);
+    //crow::logger::setHandler(std::make_shared<ExampleLogHandler>());
+
+    app.port(18080)
+//      .concurrency(10)
+        .multithreaded()
+        .run();
 }
 
 
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 
 void loadConfig() {
 
-    std::ifstream is_file("/home/berg/workspace/mestrado/fuzzy-suffix-array/path.cfg");
+    std::ifstream is_file("./path.cfg");
     std::string line;
 
     while( std::getline(is_file, line) )
