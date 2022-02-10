@@ -52,7 +52,7 @@ void processingQueriesInServer() {
     CROW_ROUTE(app, "/autocomplete")
             ([](const crow::request& req) {
                 std::ostringstream os;
-                vector<char *> results;
+                vector<string> results;
 
                 os << "Params: " << req.url_params << "\n\n";
 
