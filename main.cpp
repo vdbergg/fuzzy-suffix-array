@@ -20,7 +20,7 @@ void processingQueriesOutsideServer() {
     int indexMin = stoi(config["qry_number_start"]);
     int indexMax =  stoi(config["qry_number_end"]);
 
-    #ifdef BEVA_IS_COLLECT_MEMORY_H
+    #ifdef IS_COLLECT_MEMORY_H
         indexMax = 100;
     #endif
 
@@ -43,26 +43,12 @@ void processingQueriesInServer() {
                     ([]{
                         return "Hello World!";
                     });
-
-    CROW_ROUTE(app, "/about")
-            ([](){
-                return "This is a server";
-            });
-
     CROW_ROUTE(app, "/autocomplete")
             ([](const crow::request& req) {
                 std::ostringstream os;
                 vector<string> results;
 
                 os << "Params: " << req.url_params << "\n\n";
-
-//                if (req.url_params.get("load_config") != nullptr) {
-//                    string load_config = boost::lexical_cast<string>(req.url_params.get("load_config"));
-//                    os << "The value of 'load_config' is " << load_config << '\n';
-//                    if (load_config == "true") {
-//                        loadConfig();
-//                    }
-//                }
 
                 if (req.url_params.get("query") != nullptr) {
                     string query = boost::lexical_cast<string>(req.url_params.get("query"));

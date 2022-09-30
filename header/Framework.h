@@ -1,9 +1,5 @@
-//
-// Created by vdberg on 12/02/19.
-//
-
-#ifndef BEVA_FRAMEWORK_H
-#define BEVA_FRAMEWORK_H
+#ifndef FUZZY_SUFFIX_ARRAY_FRAMEWORK_H
+#define FUZZY_SUFFIX_ARRAY_FRAMEWORK_H
 
 #include <vector>
 #include <string>
@@ -34,4 +30,4 @@ public:
 };
 
 
-#endif //BEVA_FRAMEWORK_H
+#endif //FUZZY_SUFFIX_ARRAY_FRAMEWORK_H
