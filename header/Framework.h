@@ -1,9 +1,5 @@
-//
-// Created by vdberg on 12/02/19.
-//
-
-#ifndef BEVA_FRAMEWORK_H
-#define BEVA_FRAMEWORK_H
+#ifndef FUZZY_SUFFIX_ARRAY_FRAMEWORK_H
+#define FUZZY_SUFFIX_ARRAY_FRAMEWORK_H
 
 #include <vector>
 #include <string>
@@ -13,25 +9,32 @@
 
 using namespace std;
 
-class Framework {
-public:
-    SuffixArray* suffixArray;
-    vector<string> queries;
-    int editDistanceThreshold;
-    int dataset;
+namespace fuzzy_suffix_array {
 
-    Framework();
+    class Framework {
+    public:
+        SuffixArray *suffixArray;
+        vector<string> queries;
+        int editDistanceThreshold;
+        int dataset;
 
-    void readData(string&, vector<StaticString>&);
-    void readData(string&, vector<string>&, bool insertEndOfWord = false);
-    void index();
-    vector<string> processQuery(string &query, int queryId);
-    vector<string> processFullQuery(string &query);
+        Framework();
 
-    ~Framework();
+        void readData(string &, vector<StaticString> &);
 
-    static vector<string> output(const unordered_map<int, int>& map);
-};
+        void readData(string &, vector<string> &, bool insertEndOfWord = false);
 
+        void index();
 
-#endif //BEVA_FRAMEWORK_H
+        vector<string> processQuery(string &query, int queryId);
+
+        vector<string> processFullQuery(string &query);
+
+        ~Framework();
+
+        static vector<string> output(const unordered_map<int, int> &map);
+    };
+
+}
+
+#endif //FUZZY_SUFFIX_ARRAY_FRAMEWORK_H

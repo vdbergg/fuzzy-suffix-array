@@ -1,13 +1,9 @@
-//
-// Created by berg on 12/07/19.
-//
-
-#ifndef BEVA_EXPERIMENT_H
-#define BEVA_EXPERIMENT_H
+#ifndef FUZZY_SUFFIX_ARRAY_EXPERIMENT_H
+#define FUZZY_SUFFIX_ARRAY_EXPERIMENT_H
 
 #include "../header/Directives.h"
 
-#ifndef BEVA_IS_MAC_H
+#ifndef FUZZY_SUFFIX_ARRAY_IS_MAC_H
 #include "sys/sysinfo.h"
 #else
 #include "sys/types.h"
@@ -19,59 +15,75 @@
 
 using namespace std;
 
-class Experiment {
-public:
-    Experiment(unordered_map<string, string> config, int);
-    ~Experiment();
+namespace fuzzy_suffix_array {
 
-    unordered_map<string, string>  config;
-    int editDistanceThreshold;
-    vector<long> processingTimes;
-    vector<long> fetchingTimes;
-    vector<long> resultsSize;
-    unsigned long simpleProcessingTimes;
-    unsigned long simpleFetchingTimes;
-    unsigned long simpleResultsSize;
-    vector<long> currentQueryProcessingTime;
-    vector<long> currentQueryFetchingTime;
-    vector<long> currentResultsSize;
+    class Experiment {
+    public:
+        Experiment(unordered_map<string, string> config, int);
 
-    #ifndef BEVA_IS_MAC_H
-    chrono::time_point<std::chrono::system_clock> startIndexingTime;
-    chrono::time_point<std::chrono::system_clock> finishIndexingTime;
+        ~Experiment();
 
-    chrono::time_point<std::chrono::system_clock> startQueryProcessingTime;
-    chrono::time_point<std::chrono::system_clock> finishQueryProcessingTime;
+        unordered_map<string, string> config;
+        int editDistanceThreshold;
+        vector<long> processingTimes;
+        vector<long> fetchingTimes;
+        vector<long> resultsSize;
+        unsigned long simpleProcessingTimes;
+        unsigned long simpleFetchingTimes;
+        unsigned long simpleResultsSize;
+        vector<long> currentQueryProcessingTime;
+        vector<long> currentQueryFetchingTime;
+        vector<long> currentResultsSize;
 
-    chrono::time_point<std::chrono::system_clock> startQueryFetchingTime;
-    chrono::time_point<std::chrono::system_clock> finishQueryFetchingTime;
-    #else
-    chrono::high_resolution_clock::time_point startIndexingTime;
-    chrono::high_resolution_clock::time_point finishIndexingTime;
+#ifndef IS_MAC_H
+        chrono::time_point<std::chrono::system_clock> startIndexingTime;
+        chrono::time_point<std::chrono::system_clock> finishIndexingTime;
 
-    chrono::high_resolution_clock::time_point startQueryProcessingTime;
-    chrono::high_resolution_clock::time_point finishQueryProcessingTime;
+        chrono::time_point<std::chrono::system_clock> startQueryProcessingTime;
+        chrono::time_point<std::chrono::system_clock> finishQueryProcessingTime;
 
-    chrono::high_resolution_clock::time_point startQueryFetchingTime;
-    chrono::high_resolution_clock::time_point finishQueryFetchingTime;
-    #endif
+        chrono::time_point<std::chrono::system_clock> startQueryFetchingTime;
+        chrono::time_point<std::chrono::system_clock> finishQueryFetchingTime;
+#else
+        chrono::high_resolution_clock::time_point startIndexingTime;
+        chrono::high_resolution_clock::time_point finishIndexingTime;
 
-    void initIndexingTime();
-    void endIndexingTime();
-    void initQueryProcessingTime();
-    void endQueryProcessingTime(int);
-    void endSimpleQueryProcessingTime();
-    void initQueryFetchingTime();
-    void endQueryFetchingTime(int, unsigned long);
-    void endSimpleQueryFetchingTime(unsigned long);
-    void compileQueryProcessingTimes(int);
-    void compileSimpleQueryProcessingTimes(string&);
-    void saveQueryProcessingTime(string&, int);
-    void getMemoryUsedInIndexing();
-    void getMemoryUsedInProcessing();
+        chrono::high_resolution_clock::time_point startQueryProcessingTime;
+        chrono::high_resolution_clock::time_point finishQueryProcessingTime;
 
-    void writeFile(const string&, const string&, bool writeInTheEnd=false);
-};
+        chrono::high_resolution_clock::time_point startQueryFetchingTime;
+        chrono::high_resolution_clock::time_point finishQueryFetchingTime;
+#endif
 
+        void initIndexingTime();
 
-#endif //BEVA_EXPERIMENT_H
+        void endIndexingTime();
+
+        void initQueryProcessingTime();
+
+        void endQueryProcessingTime(int);
+
+        void endSimpleQueryProcessingTime();
+
+        void initQueryFetchingTime();
+
+        void endQueryFetchingTime(int, unsigned long);
+
+        void endSimpleQueryFetchingTime(unsigned long);
+
+        void compileQueryProcessingTimes(int);
+
+        void compileSimpleQueryProcessingTimes(string &);
+
+        void saveQueryProcessingTime(string &, int);
+
+        void getMemoryUsedInIndexing();
+
+        void getMemoryUsedInProcessing();
+
+        void writeFile(const string &, const string &, bool writeInTheEnd = false);
+    };
+
+}
+
+#endif //FUZZY_SUFFIX_ARRAY_EXPERIMENT_H
