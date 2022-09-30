@@ -1,7 +1,3 @@
-//
-// Created by berg on 04/02/2022.
-//
-
 #include <algorithm>
 #include <cmath>
 #include <set>
@@ -9,7 +5,6 @@
 
 SuffixArray::SuffixArray(int editDistanceThreshold) {
     this->editDistanceThreshold = editDistanceThreshold;
-    this->s = 1;
 }
 
 SuffixArray::~SuffixArray() {
@@ -21,29 +16,13 @@ bool lexicographicalOrder(pair<unsigned, unsigned short>& itemA, pair<unsigned, 
 }
 
 void SuffixArray::build() {
-    cout << "Adding pair to array..." << endl;
     for (unsigned recordId = 0; recordId < records.size(); recordId++) {
         for (unsigned short i = 0; i < records[recordId].size(); i++) {
             this->suffixes.emplace_back(recordId, i);
         }
     }
 
-//    int index = 0;
-//    for (auto suffixArrayItem : this->suffixes) {
-//        string str = records[suffixArrayItem.first].c_str();
-//        cout << "Index: " << index << " Suffix: " << str.substr(suffixArrayItem.second).c_str() << " recordId: " << suffixArrayItem.first <<  " position: " << suffixArrayItem.second << endl;
-//        index++;
-//    }
-
-    cout << "Sorting array..." << endl;
     sort(this->suffixes.begin(), this->suffixes.end(), lexicographicalOrder);
-//    cout << "suffixes sorted" << endl;
-//    index = 0;
-//    for (auto suffixArrayItem : suffixes) {
-//        string str = records[suffixArrayItem.first].c_str();
-//        cout << "Index: " << index << " Suffix: " << str.substr(suffixArrayItem.second) << " recordId: " << suffixArrayItem.first << " position: " << suffixArrayItem.second << endl;
-//        index++;
-//    }
 }
 
 int binarySearchRight(vector<pair<unsigned, unsigned short>>& suffixArray, int begin, int end, const string& prefix) {
@@ -114,10 +93,8 @@ vector<string> SuffixArray::exactSearch(const string& prefix) {
 
 vector<string> SuffixArray::fetching(int beginRangeResult, int endRangeResult) {
     set<int> resultsRecordIds;
-//    cout << "beginRangeResult: " << beginRangeResult << " endRangeResult: " << endRangeResult << endl;
     for (int i = beginRangeResult; i <= endRangeResult; i++) {
         resultsRecordIds.insert(this->suffixes[i].first);
-//        cout << "Index: " << i << " Result: " << records[this->suffixes[i].first].c_str() << " recordId: " << this->suffixes[i].first << " position: " << this->suffixes[i].second << endl;
     }
 
     vector<string> results;
@@ -160,26 +137,16 @@ int calculateEdiDistance(const string& a, const string& b, int candidateSize) {
 }
 
 void SuffixArray::approximateSearch(const string &prefix, unordered_map<int, int>& resultsMap) {
-    int gramSize = ceil(float(prefix.size()) / float(this->editDistanceThreshold + this->s));
+    int gramSize = ceil(float(prefix.size()) / float(this->editDistanceThreshold + 1));
 
-//    cout << "Generating ngram to prefix..." << endl;
-//    auto start = chrono::high_resolution_clock::now();
     vector<string> prefixNGrams;
     generateNGram(gramSize, prefix, prefixNGrams);
-//    auto done = chrono::high_resolution_clock::now();
-//    cout << "<<<generateNGram(gramSize, prefix, prefixNGrams): "<< chrono::duration_cast<chrono::nanoseconds>(done - start).count() << " ns>>>\n";
 
     int ngramPosition = 0;
     for (const string& ngram : prefixNGrams) {
-//        cout << "Exact searching to ngram..." << endl;
-//        start = chrono::high_resolution_clock::now();
         pair<int, int> rangeResult = this->search(ngram);
-//        done = chrono::high_resolution_clock::now();
-//        cout << "<<<this->search(ngram): "<< chrono::duration_cast<chrono::nanoseconds>(done - start).count() << " ns>>>\n";
 
         if (rangeResult.first != -1 && rangeResult.second != -1) {
-//            cout << "Generating candidates to ngram..." << endl;
-//            start = chrono::high_resolution_clock::now();
 
             for (int i = rangeResult.first; i <= rangeResult.second; i++) {
                 pair<int, int> item = this->suffixes[i];
@@ -201,12 +168,7 @@ void SuffixArray::approximateSearch(const string &prefix, unordered_map<int, int
                     }
                 }
             }
-//            done = chrono::high_resolution_clock::now();
-//            cout << "<<<candidates time: "<< chrono::duration_cast<chrono::nanoseconds>(done - start).count() << " ns>>>\n";
         }
-
-//        cout << "\n" << endl;
-
         ngramPosition += ngram.size();
     }
 }
