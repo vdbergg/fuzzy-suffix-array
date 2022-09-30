@@ -1,7 +1,3 @@
-//
-// Created by berg on 02/04/2020.
-//
-
 #include <iostream>
 #include <unordered_map>
 

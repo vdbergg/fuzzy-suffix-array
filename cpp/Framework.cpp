@@ -1,7 +1,3 @@
-//
-// Created by vdberg on 12/02/19.
-//
-
 #include <algorithm>
 #include <iostream>
 #include <vector>
@@ -32,7 +28,7 @@ Framework::~Framework() {
 }
 
 unsigned long getFileSize(string filename) {
-    FILE *fp=fopen(filename.c_str(),"r");
+    FILE *fp = fopen(filename.c_str(), "r");
 
     struct stat buf;
     fstat(fileno(fp), &buf);
@@ -47,17 +43,9 @@ void Framework::readData(string& filename, vector<StaticString>& recs) {
     ifstream input(filename, ios::in);
 
     unsigned long fileSize = getFileSize(filename);
-//    cout << "Tamanho do Arquivo:" << fileSize << endl;
-    char *tmpPtr = (char*) malloc(sizeof(char)*fileSize);
+    char *tmpPtr = (char*) malloc(sizeof(char) * fileSize);
     StaticString::setDataBaseMemory(tmpPtr,fileSize);
     while (getline(input, str)) {
-//        for (char &c : str) {
-//            if ((int) c == -61) continue;
-//            else if ((int) c < 0 || (int) c >= CHAR_SIZE) {
-//                c = utils::convertSpecialCharToSimpleChar(c);
-//            }
-//            c = tolower(c);
-//        }
         if (!str.empty()) recs.push_back(StaticString(str));
     }
 }
@@ -68,13 +56,6 @@ void Framework::readData(string& filename, vector<string>& recs, bool insertEndO
     string str;
     ifstream input(filename, ios::in);
     while (getline(input, str)) {
-//        for (char &c : str) {
-//            if ((int) c == -61) continue;
-//            else if ((int) c < 0 || (int) c >= CHAR_SIZE) {
-//                c = utils::convertSpecialCharToSimpleChar(c);
-//            }
-//            c = tolower(c);
-//        }
         if (insertEndOfWord) str += "$";
         if (!str.empty()) recs.push_back(str);
     }
@@ -102,7 +83,7 @@ void Framework::index(){
 
     auto start = chrono::high_resolution_clock::now();
 
-    #ifdef BEVA_IS_COLLECT_TIME_H
+    #ifdef IS_COLLECT_TIME_H
         experiment->initIndexingTime();
     #endif
     
@@ -133,7 +114,7 @@ void Framework::index(){
         case C::DBLP:
             datasetFile += "dblp/dblp" + sizeSufix + ".txt";
             queryFile += "dblp/q17_" + tau + datasetSuffix + ".txt";
-	    break;
+	          break;
         case C::UMBC:
             datasetFile += "umbc/umbc" + sizeSufix + ".txt";
             queryFile += "umbc/q17_" + tau + datasetSuffix + ".txt";
@@ -143,8 +124,8 @@ void Framework::index(){
             queryFile += "jusbrasil/q.txt";
             break;
         default:
-            datasetFile = "/home/berg/workspace/mestrado/fuzzy-suffix-array/test.txt";
-            queryFile = "/home/berg/workspace/mestrado/fuzzy-suffix-array/q.txt";
+            cout << "Dataset not found." << endl;
+            exit(1);
             break;
     }
 
@@ -157,35 +138,12 @@ void Framework::index(){
 
     auto done = chrono::high_resolution_clock::now();
 
-    #ifdef BEVA_IS_COLLECT_MEMORY_H
+    #ifdef IS_COLLECT_MEMORY_H
         experiment->getMemoryUsedInIndexing();
     #else
         experiment->endIndexingTime();
     #endif
     cout << "<<<Index time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
-
-//    string prefix = "ba";
-//    cout << "Searching in array to prefix: " << prefix << endl;
-//    vector<string> results = this->suffixArray->exactSearch(prefix);
-//    for (auto & result : results) {
-//        cout << "Result: " << result << endl;
-//    }
-
-//    string prefix = "volvo";
-//    cout << "Searching in array to prefix: " << prefix << endl;
-//
-//    start = chrono::high_resolution_clock::now();
-//    unordered_map<int, int> resultsMap;
-//    this->suffixArray->approximateSearch(prefix, resultsMap);
-//    for (const auto& result : resultsMap) {
-//        cout << "result: " << records[result.first] << endl;
-//    }
-//    vector<string> results = this->suffixArray->exactSearch(prefix);
-//    for (const string& result : results) {
-//        cout << "result: " << result << endl;
-//    }
-    done = chrono::high_resolution_clock::now();
-    cout << "<<<Processing time: "<< chrono::duration_cast<chrono::milliseconds>(done - start).count() << " ms>>>\n";
 }
 
 vector<string> Framework::processQuery(string &query, int queryId) {
@@ -197,13 +155,13 @@ vector<string> Framework::processQuery(string &query, int queryId) {
         prefix = query.substr(0, prefixQuerySize);
 
         if (prefix.size() == prefixQuerySize) {
-            #ifdef BEVA_IS_COLLECT_TIME_H
+            #ifdef IS_COLLECT_TIME_H
                 experiment->initQueryProcessingTime();
             #endif
             unordered_map<int, int> resultsMap;
             this->suffixArray->approximateSearch(prefix, resultsMap);
 
-            #ifdef BEVA_IS_COLLECT_TIME_H
+            #ifdef IS_COLLECT_TIME_H
                 experiment->endQueryProcessingTime(prefixQuerySize);
                 experiment->initQueryFetchingTime();
                 results = output(resultsMap);
@@ -212,7 +170,7 @@ vector<string> Framework::processQuery(string &query, int queryId) {
         }
     }
 
-    #ifdef BEVA_IS_COLLECT_MEMORY_H
+    #ifdef IS_COLLECT_MEMORY_H
         experiment->getMemoryUsedInProcessing();
     #else
         experiment->compileQueryProcessingTimes(queryId);
@@ -223,26 +181,26 @@ vector<string> Framework::processQuery(string &query, int queryId) {
 }
 
 vector<string> Framework::processFullQuery(string &query) {
-    #ifdef BEVA_IS_COLLECT_TIME_H
+    #ifdef IS_COLLECT_TIME_H
         experiment->initQueryProcessingTime();
     #endif
 
     unordered_map<int, int> resultsMap;
     this->suffixArray->approximateSearch(query, resultsMap);
 
-    #ifdef BEVA_IS_COLLECT_TIME_H
+    #ifdef IS_COLLECT_TIME_H
         experiment->endSimpleQueryProcessingTime();
         experiment->initQueryFetchingTime();
     #endif
 
     vector<string> results = this->output(resultsMap);
 
-    #ifdef BEVA_IS_COLLECT_TIME_H
+    #ifdef IS_COLLECT_TIME_H
         experiment->endSimpleQueryFetchingTime(results.size());
         experiment->compileSimpleQueryProcessingTimes(query);
     #endif
 
-    #ifdef BEVA_IS_COLLECT_MEMORY_H
+    #ifdef IS_COLLECT_MEMORY_H
         experiment->getMemoryUsedInProcessing();
     #endif
 

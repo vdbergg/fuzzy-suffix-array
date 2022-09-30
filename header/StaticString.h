@@ -1,9 +1,5 @@
-//
-// Created by berg on 23/07/2020.
-//
-
-#ifndef BEVA_STATICSTRING_H
-#define BEVA_STATICSTRING_H
+#ifndef FUZZY_SUFFIX_ARRAY_STATICSTRING_H
+#define FUZZY_SUFFIX_ARRAY_STATICSTRING_H
 
 
 #include <string>
@@ -13,87 +9,47 @@
 
 using namespace std;
 
-typedef unsigned integerPointer;
+typedef unsigned long integerPointer;
 
 
-extern integerPointer  currFreePosition;
+extern integerPointer currFreePosition;
 extern integerPointer dataEnd;
 extern char *_data_static;
 
-const unsigned staticStringNPos=0xFFFFFFFF;
+const unsigned long staticStringNPos = 0xFFFFFFFF;
 
 class StaticString {
 public:
-    // one value per object
     integerPointer dataPos;
-    unsigned stringSize;
+    unsigned long stringSize;
 
-    inline string substr(unsigned inicio = 0, unsigned length = staticStringNPos) {
-        string tmp="";
-	    if (length ==0) return tmp;
-	    if (length> stringSize) length = stringSize;
-        if (inicio+length <=stringSize) {
-            tmp.reserve(length+1);
-	        tmp = string(_data_static+dataPos).substr(inicio,length);
-        } else {
-            if (inicio < stringSize) {
-	            tmp.reserve(length+1);
-	            tmp = string(_data_static+dataPos).substr(inicio,stringSize-inicio);
-            } else {
-                tmp="";
-            }
-        }
-        return tmp;
-    }
-
-
-   inline StaticString staticSubstr(unsigned inicio = 0, unsigned length = staticStringNPos) {
-        StaticString tmp;
+    inline string substr(unsigned long start = 0, unsigned long length = staticStringNPos) {
+        string tmp = "";
+        if (length == 0) return tmp;
         if (length > stringSize) length = stringSize;
-        if (inicio + length <= stringSize) {
-            tmp.dataPos = dataPos + inicio;
-            tmp.stringSize = length;
+
+        if (start + length <= stringSize) {
+            tmp.reserve(length + 1);
+	          tmp = string(_data_static + dataPos).substr(start, length);
         } else {
-            if (inicio < stringSize) {
-                length = stringSize - inicio;
-                tmp.dataPos = dataPos + inicio;
-                tmp.stringSize = length;
+            if (start < stringSize) {
+                tmp.reserve(length + 1);
+                tmp = string(_data_static + dataPos).substr(start, stringSize - start);
             } else {
-                tmp.dataPos = dataPos;
-                tmp.stringSize= 0;
+                tmp = "";
             }
         }
         return tmp;
     }
 
- inline StaticString staticSubstr2(unsigned inicio = 0, unsigned length = staticStringNPos) {
-        StaticString tmp;
-	cout << "*** substr inicio " << inicio << " length " << length << " size "<< stringSize << endl; 
-	if(length> stringSize) length = stringSize;
-	cout << "1 substr inicio " << inicio << " length " << length << " size "<< stringSize << endl; 
-        if (inicio+length <=stringSize) {
-	  tmp.dataPos = dataPos+inicio;
-	  tmp.stringSize=length;
-	cout << "2 substr inicio " << inicio << " length " << length << " size "<< stringSize << endl; 
-        } else {
-	  if (inicio < stringSize) {
-	    length = stringSize-inicio;
-	    tmp.dataPos = dataPos+inicio;
-	    tmp.stringSize=length;
-	cout << "3 substr inicio " << inicio << " length " << length << " size "<< stringSize << endl; 
-	  } else {
-	    tmp.dataPos = dataPos;
-	    tmp.stringSize= 0;
-	cout << "4 substr inicio " << inicio << " length " << length << " size "<< stringSize << endl; 
-	  }
-	}
-        return tmp;
-   }
-
-    inline unsigned length() { return stringSize;}
-    inline unsigned size() { return stringSize;}
-    inline char operator[](unsigned pos) { return *(_data_static+dataPos+pos); }
-    inline static void setDataBaseMemory(char *ptr,unsigned size) { _data_static = ptr; dataEnd=size; currFreePosition= 0;}
+    inline unsigned long length() { return stringSize;}
+    inline unsigned long size() { return stringSize;}
+    inline char operator[](unsigned long pos) { return *(_data_static + dataPos + pos); }
+    inline static void setDataBaseMemory(char *ptr, unsigned long size) {
+      _data_static = ptr;
+      dataEnd = size;
+      currFreePosition= 0;
+    }
 
     StaticString(const string s) {
         insertNewString(s);
@@ -105,25 +61,25 @@ public:
     }
 
     StaticString() {
-        this->stringSize=0;
+        this->stringSize = 0;
         this->dataPos = 0;
     }
 
-    StaticString(unsigned data, unsigned size) {
+    StaticString(unsigned long data, unsigned long size) {
       this->dataPos = data;
       this->stringSize= size;
     }
 
-    void resize(unsigned newSize) {
+    void resize(unsigned long newSize) {
         if (newSize <= this->stringSize) {
             this->stringSize = newSize;
         } else {
-            cout << "static strings cannot be resized to grow!!!!\n" << endl;
+            cout << "static strings cannot be resized to grow." << endl;
             exit(1);
         }
     }
 
-    inline  char *c_str(){ return _data_static+dataPos; }
+    inline  char *c_str(){ return _data_static + dataPos; }
 
     void insertNewString(string s) {
         dataPos = currFreePosition;
@@ -132,7 +88,7 @@ public:
             strcpy(_data_static+dataPos,s.c_str());
             currFreePosition += s.length()+1;
         } else {
-            cout << "ERRO DE INSERCAO NO DATASET EM MEMORIA\n" << endl;
+            cout << "Insertion error into dataset in-memory" << endl;
             exit(1);
         }
     }

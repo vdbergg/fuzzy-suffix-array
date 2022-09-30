@@ -1,13 +1,9 @@
-//
-// Created by berg on 12/07/19.
-//
-
-#ifndef BEVA_EXPERIMENT_H
-#define BEVA_EXPERIMENT_H
+#ifndef FUZZY_SUFFIX_ARRAY_EXPERIMENT_H
+#define FUZZY_SUFFIX_ARRAY_EXPERIMENT_H
 
 #include "../header/Directives.h"
 
-#ifndef BEVA_IS_MAC_H
+#ifndef FUZZY_SUFFIX_ARRAY_IS_MAC_H
 #include "sys/sysinfo.h"
 #else
 #include "sys/types.h"
@@ -36,7 +32,7 @@ public:
     vector<long> currentQueryFetchingTime;
     vector<long> currentResultsSize;
 
-    #ifndef BEVA_IS_MAC_H
+    #ifndef IS_MAC_H
     chrono::time_point<std::chrono::system_clock> startIndexingTime;
     chrono::time_point<std::chrono::system_clock> finishIndexingTime;
 
@@ -74,4 +70,4 @@ public:
 };
 
 
-#endif //BEVA_EXPERIMENT_H
+#endif //FUZZY_SUFFIX_ARRAY_EXPERIMENT_H

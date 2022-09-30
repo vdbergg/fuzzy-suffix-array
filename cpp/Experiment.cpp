@@ -1,7 +1,3 @@
-//
-// Created by berg on 12/07/19.
-//
-
 #include <utility>
 #include <iostream>
 #include <fstream>
@@ -42,7 +38,7 @@ Experiment::~Experiment() {
 
 void Experiment::writeFile(const string& name, const string& value, bool writeInTheEnd) {
     ofstream myfile;
-    string buildIndexType = "bfs"; // Legado
+    string buildIndexType = "bfs";
 
     string newName = config["experiments_basepath"] + name;
     newName += "_data_set_" + config["dataset"] + "_size_type_" + config["size_type"] + "_tau_" +

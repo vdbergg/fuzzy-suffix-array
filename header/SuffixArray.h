@@ -1,7 +1,3 @@
-//
-// Created by berg on 04/02/2022.
-//
-
 #ifndef FUZZY_SUFFIX_ARRAY_SUFFIXARRAY_H
 #define FUZZY_SUFFIX_ARRAY_SUFFIXARRAY_H
 
@@ -22,7 +18,6 @@ public:
 
     vector<pair<unsigned, unsigned short>> suffixes;
     int editDistanceThreshold;
-    int s;
 };
 
 
